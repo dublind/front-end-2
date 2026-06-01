@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="ReciclaChile: registra y gestiona los residuos reciclables de tu hogar en el contexto de la Ley REP." />
+  <title>ReciclaChile · Gestión de residuos del hogar</title>
+
+  <!-- Tipografías distintivas (Fraunces para display, Spline Sans para cuerpo) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Spline+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body data-tema="claro">
+
+  <!-- ============ ENCABEZADO ============ -->
+  <header class="cabecera">
+    <div class="cabecera__marca">
+      <span class="logo" aria-hidden="true">♺</span>
+      <div>
+        <h1 class="cabecera__titulo">ReciclaChile</h1>
+        <p class="cabecera__bajada">Gestiona los residuos reciclables de tu hogar · Ley REP 20.920</p>
+      </div>
+    </div>
+
+    <button id="btnTema" class="btn-tema" type="button" aria-pressed="false" aria-label="Cambiar a modo oscuro">
+      <span class="btn-tema__icono" aria-hidden="true">☾</span>
+      <span class="btn-tema__texto">Modo oscuro</span>
+    </button>
+  </header>
+
+  <main class="contenedor">
+
+    <!-- ============ PANEL DE ESTADÍSTICAS (DOM dinámico) ============ -->
+    <section class="panel" aria-labelledby="tituloPanel">
+      <h2 id="tituloPanel" class="visualmente-oculto">Resumen de impacto</h2>
+      <div class="tarjetas-stats" id="estadisticas">
+        <article class="stat">
+          <span class="stat__valor" id="statTotalKg">0,0</span>
+          <span class="stat__etiqueta">kg reciclados</span>
+        </article>
+        <article class="stat">
+          <span class="stat__valor" id="statRegistros">0</span>
+          <span class="stat__etiqueta">registros</span>
+        </article>
+        <article class="stat stat--destacada">
+          <span class="stat__valor" id="statCo2">0,0</span>
+          <span class="stat__etiqueta">kg CO₂ evitados</span>
+        </article>
+        <article class="stat">
+          <span class="stat__valor" id="statTopMaterial">—</span>
+          <span class="stat__etiqueta">material principal</span>
+        </article>
+      </div>
+    </section>
+
+    <div class="cuadricula">
+
+      <!-- ============ FORMULARIO (validación + seguridad) ============ -->
+      <section class="seccion-form" aria-labelledby="tituloForm">
+        <h2 id="tituloForm" class="seccion__titulo">Registrar reciclaje</h2>
+
+        <form id="formReciclaje" class="formulario" novalidate>
+          <div class="campo">
+            <label for="material">Material <span class="req" aria-hidden="true">*</span></label>
+            <select id="material" name="material" required aria-describedby="errMaterial">
+              <option value="">Selecciona un material…</option>
+              <option value="papel">Papel y cartón</option>
+              <option value="plastico">Plástico (PET / HDPE)</option>
+              <option value="vidrio">Vidrio</option>
+              <option value="metal">Metales (latas / aluminio)</option>
+              <option value="organico">Orgánico (compostaje)</option>
+              <option value="tetrapak">Tetra Pak</option>
+            </select>
+            <p class="error" id="errMaterial" role="alert"></p>
+          </div>
+
+          <div class="campo">
+            <label for="cantidad">Cantidad en kilogramos <span class="req" aria-hidden="true">*</span></label>
+            <input type="number" id="cantidad" name="cantidad" inputmode="decimal"
+                   step="0.1" min="0.1" max="500" placeholder="Ej: 2.5" required
+                   aria-describedby="errCantidad" />
+            <p class="error" id="errCantidad" role="alert"></p>
+          </div>
+
+          <div class="campo">
+            <label for="punto">Punto limpio o comuna <span class="req" aria-hidden="true">*</span></label>
+            <input type="text" id="punto" name="punto" maxlength="50"
+                   placeholder="Ej: Punto Limpio Providencia" required
+                   autocomplete="off" aria-describedby="errPunto" />
+            <p class="error" id="errPunto" role="alert"></p>
+          </div>
+
+          <div class="campo">
+            <label for="fecha">Fecha de entrega <span class="req" aria-hidden="true">*</span></label>
+            <input type="date" id="fecha" name="fecha" required aria-describedby="errFecha" />
+            <p class="error" id="errFecha" role="alert"></p>
+          </div>
+
+          <div class="form-acciones">
+            <button type="submit" class="btn btn--primario" id="btnGuardar">Agregar registro</button>
+            <button type="reset" class="btn btn--fantasma" id="btnCancelar">Limpiar</button>
+          </div>
+
+          <!-- Retroalimentación global accesible -->
+          <p class="aviso" id="avisoGlobal" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+
+      <!-- ============ LISTA DE REGISTROS (DOM dinámico) ============ -->
+      <section class="seccion-lista" aria-labelledby="tituloLista">
+        <div class="lista__cabecera">
+          <h2 id="tituloLista" class="seccion__titulo">Mis registros</h2>
+
+          <!-- Filtros dinámicos -->
+          <div class="filtros" id="filtros" role="group" aria-label="Filtrar por material">
+            <button class="chip chip--activo" data-filtro="todos" type="button">Todos</button>
+            <button class="chip" data-filtro="papel" type="button">Papel</button>
+            <button class="chip" data-filtro="plastico" type="button">Plástico</button>
+            <button class="chip" data-filtro="vidrio" type="button">Vidrio</button>
+            <button class="chip" data-filtro="metal" type="button">Metal</button>
+            <button class="chip" data-filtro="organico" type="button">Orgánico</button>
+            <button class="chip" data-filtro="tetrapak" type="button">Tetra Pak</button>
+          </div>
+        </div>
+
+        <!-- Aquí JavaScript inserta/elimina las tarjetas dinámicamente -->
+        <div class="lista" id="listaRegistros" aria-live="polite"></div>
+
+        <!-- Estado vacío -->
+        <div class="vacio" id="estadoVacio">
+          <span class="vacio__icono" aria-hidden="true">🌱</span>
+          <p>Aún no tienes registros. ¡Agrega tu primer reciclaje para empezar a medir tu impacto!</p>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="pie">
+    <p>Proyecto educativo · Programación Frontend · Contexto: Ley de Responsabilidad Extendida del Productor (REP) en Chile.</p>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
