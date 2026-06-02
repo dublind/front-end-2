@@ -71,12 +71,7 @@ body {
   font-size: 2.4rem; color: var(--verde);
   line-height: 1; animation: girar 14s linear infinite;
 }
-@keyframes girar { to { transform: rotate(360deg); } }
-.cabecera__titulo {
-  font-family: 'Fraunces', Georgia, serif;
-  font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 600;
-  letter-spacing: -0.01em;
-}
+
 .cabecera__bajada { color: var(--tinta-suave); font-size: 0.85rem; }
 
 .btn-tema {
